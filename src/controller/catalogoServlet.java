@@ -30,15 +30,26 @@ public class catalogoServlet extends HttpServlet {
 		session.setAttribute("dataFine", paramEnd);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String search = null;
-			search = (paramStart);
+		Date dataInizio = null;
+		Date dataFine = null;
+		try {
+			dataInizio = sdf.parse(paramStart);
+			dataFine = sdf.parse(paramEnd);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		//int giorni = dataFine.getDay()-dataInizio.getDay();
-		session.setAttribute("keyword", search);
+		long diff = dataFine.getTime() - dataInizio.getTime();
+		int giorni=(int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+		session.setAttribute("giorni", giorni);
 		
 		
 		RequestDispatcher disp;
-		
+		if(giorni<=0) {
+			disp = req.getRequestDispatcher("index.jsp");
+			disp.forward(req, resp);
+		}else {
 			 // se non sei admin mandalo a catalogo 
 			if((Boolean)session.getAttribute("admin")==false) {
 			disp = req.getRequestDispatcher("catalogo.jsp");
@@ -47,7 +58,7 @@ public class catalogoServlet extends HttpServlet {
 			disp = req.getRequestDispatcher("registrazioneWalkin.jsp");
 			disp.forward(req, resp);
 			
-		
+		}
 	}
 
 	
